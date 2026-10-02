@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172821">
+  <title>Paperflip · 나의 만화 컬렉션</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./src/styles.css">
+  <script type="module" src="./src/app.js"></script>
+</head>
+<body hidden>
+  <header class="app-header">
+    <a class="brand" href="./" aria-label="Paperflip 처음으로"><span class="brand-mark" aria-hidden="true">P</span>Paperflip</a>
+    <span class="header-caption">한 장씩 모아, 한 권의 이야기로</span>
+    <span class="header-note">나의 만화책 서재</span>
+    <button class="button button-quiet" type="button" id="lock-library">잠그기</button>
+  </header>
+
+  <div class="tabs-bar">
+    <nav class="app-tabs" role="tablist" aria-label="만화책 메뉴">
+      <button type="button" role="tab" id="tab-viewer" aria-controls="panel-viewer" aria-selected="false" tabindex="-1" data-tab="viewer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v15M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z"/></svg>뷰어</button>
+      <button type="button" role="tab" id="tab-collection" aria-controls="panel-collection" aria-selected="true" tabindex="0" data-tab="collection"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="13" y="3" width="7" height="18" rx="1"/><path d="M5 7h3M15 7h3"/></svg>컬렉션<span class="tab-count" id="collection-count">0</span></button>
+      <button type="button" role="tab" id="tab-upload" aria-controls="panel-upload" aria-selected="false" tabindex="-1" data-tab="upload"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9l-7-7ZM14 2v7h7M12 12v6M9 15h6"/></svg>파일추가</button>
+    </nav>
+  </div>
+
+  <main class="app-main">
+    <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+
+    <section id="panel-viewer" class="tab-panel" role="tabpanel" aria-labelledby="tab-viewer" hidden>
+      <div class="section-heading reader-heading">
+        <div><span class="eyebrow">YOUR READING ROOM</span><h1 id="reader-title">읽을 만화를 골라 주세요</h1><p id="reader-subtitle">컬렉션에 저장한 책을 여기에서 펼쳐 읽습니다.</p></div>
+        <button class="button" type="button" data-go="collection">컬렉션에서 고르기</button>
+      </div>
+      <div class="reader-empty" id="reader-empty">
+        <div class="empty-book" aria-hidden="true"><span></span><span></span></div>
+        <h2>다음 이야기를 펼쳐 볼까요?</h2>
+        <p>컬렉션에서 만화를 선택하면 책처럼 넘겨 읽을 수 있어요.</p>
+        <button class="button button-primary" type="button" data-go="collection">컬렉션 열기</button>
+      </div>
+      <div id="reader-content" hidden>
+        <div class="toolbar">
+          <label class="direction-label" for="direction">읽는 방향<select id="direction"><option value="ltr">왼쪽 → 오른쪽</option><option value="rtl">오른쪽 → 왼쪽</option></select></label>
+          <label class="direction-label" for="view-mode">보기 모드<select id="view-mode"><option value="flip">책 넘김</option><option value="single">한 페이지</option><option value="double">두 페이지</option><option value="scroll">세로 스크롤</option></select></label>
+          <span class="book-meta" id="book-meta"></span>
+          <button class="button button-quiet" type="button" id="zoom">확대해서 읽기</button>
+          <button class="button button-quiet" type="button" id="fullscreen">책만 전체화면</button>
+        </div>
+        <section class="book-stage" id="book-stage" aria-label="만화책 읽기"><canvas id="book-canvas" role="img" tabindex="0" aria-label="책장 바깥 모서리를 잡아 넘기는 책">이전 장과 다음 장 버튼으로 책을 읽을 수 있습니다.</canvas><div id="page-viewer" class="page-viewer" tabindex="0" role="region" aria-label="만화 페이지" hidden></div><button class="focus-exit" id="exit-reading-focus" type="button" aria-label="책 전체화면 종료">닫기 · Esc</button></section>
+        <nav class="book-navigation" aria-label="책장 이동"><button class="button" type="button" id="previous" disabled>← 이전 장</button><span class="page-status" id="page-status" role="status" aria-live="polite">—</span><button class="button" type="button" id="next" disabled>다음 장 →</button></nav>
+        <div class="reader-bottom"><p class="reading-tip" id="reading-tip">바깥 모서리를 잡아 반대편으로 당겨 보세요. ← → 방향키로도 넘길 수 있습니다.</p><span id="reading-save" class="save-status"></span></div>
+        <nav class="volume-navigation" id="volume-navigation" aria-label="시리즈 권 이동" hidden><button class="button" type="button" id="previous-volume">이전 권</button><span id="volume-label"></span><button class="button" type="button" id="next-volume">다음 권</button></nav>
+      </div>
+    </section>
+
+    <section id="panel-collection" class="tab-panel" role="tabpanel" aria-labelledby="tab-collection">
+      <div class="section-heading"><div><span class="eyebrow">YOUR PERSONAL LIBRARY</span><h1>내 컬렉션</h1><p>모아 둔 이야기, 읽던 페이지부터 다시.</p></div><button class="button button-primary" type="button" data-go="upload">＋ 새 만화 만들기</button></div>
+      <div class="collection-toolbar">
+        <span id="library-summary" class="library-summary">컬렉션을 불러오는 중…</span>
+        <label class="search-box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input type="search" id="collection-search" aria-label="만화 제목과 시리즈 검색" placeholder="제목·시리즈 검색"></label>
+        <select id="series-filter" aria-label="시리즈 선택"><option value="all">전체 시리즈</option><option value="standalone">단권 모아 보기</option></select>
+        <select id="collection-sort" aria-label="컬렉션 정렬"><option value="created">최근 추가순</option><option value="read">최근 읽은순</option><option value="title">제목순</option></select>
+        <button class="text-button" type="button" id="toggle-trash" aria-pressed="false">휴지통</button>
+      </div>
+      <section class="tag-filter-panel" aria-labelledby="tag-filter-title">
+        <div class="tag-filter-heading"><h2 id="tag-filter-title">태그로 골라 보기</h2><button class="text-button" type="button" id="clear-tag-filters" hidden>태그 선택 해제</button></div>
+        <p class="tag-filter-hint">여러 태그를 체크하면 하나라도 포함된 만화를 보여 줍니다. 제목 검색과 함께 사용할 수 있어요.</p>
+        <fieldset class="tag-filter-options" id="tag-filters" aria-label="태그 필터"></fieldset>
+        <p class="tag-filter-empty" id="tag-filter-empty">만화의 ‘정보·태그 편집’에서 태그를 붙여 보세요.</p>
+      </section>
+      <div id="collection-grid" class="collection-grid" aria-live="polite"></div>
+      <div id="collection-empty" class="collection-empty" hidden>
+        <div class="shelf-illustration" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
+        <h2 id="collection-empty-title">나만의 첫 번째 만화책</h2><p id="collection-empty-text">파일추가에서 이미지를 모아 한 권으로 저장해 보세요.</p><button class="button button-primary" type="button" id="collection-empty-action" data-go="upload">첫 만화 만들기</button>
+      </div>
+    </section>
+
+    <section id="panel-upload" class="tab-panel" role="tabpanel" aria-labelledby="tab-upload" hidden>
+      <div class="section-heading"><div><span class="eyebrow">BUILD YOUR NEXT STORY</span><h1>새 만화 만들기</h1><p>이미지나 ZIP·CBZ를 추가하고, 한 권으로 저장하세요.</p></div></div>
+      <form id="book-form">
+        <fieldset id="upload-fields">
+          <div class="upload-layout">
+            <div class="upload-workspace">
+              <div class="drop-zone" id="drop-zone"><div class="upload-symbol" aria-hidden="true">＋</div><h2>만화 파일을 넣어 주세요</h2><p>이미지 여러 장 또는 ZIP·CBZ 한 개를 선택하거나 끌어 놓으세요.<br>압축 파일 안의 이미지를 자동으로 꺼내 정렬합니다.</p><button class="button button-primary" type="button" id="choose-images">이미지·ZIP·CBZ 선택</button><span>JPG · PNG · WebP · GIF · AVIF · BMP · ZIP · CBZ</span></div>
+              <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/bmp,.zip,.cbz,application/zip,application/x-cbz" multiple hidden>
+              <div class="draft-toolbar"><div><strong id="draft-count">추가한 이미지 0개</strong><span id="draft-size">첫 번째 이미지가 표지가 됩니다.</span></div><button class="text-button" type="button" id="sort-pages" disabled>파일명 순 정렬</button><button class="text-button" type="button" id="clear-draft" disabled>모두 비우기</button></div>
+              <ol class="draft-pages" id="draft-pages" aria-label="저장할 페이지 순서"></ol>
+            </div>
+            <aside class="book-details">
+              <span class="eyebrow">BOOK DETAILS</span><h2>한 권의 만화로 묶기</h2>
+              <label class="field-label" for="book-title">만화 제목</label><input type="text" id="book-title" placeholder="예: 나의 만화 1권" maxlength="100" required>
+              <label class="field-label" for="book-series">시리즈명 <span class="optional-label">선택</span></label><input type="text" id="book-series" list="series-names" placeholder="예: 작은 우주" maxlength="100"><datalist id="series-names"></datalist>
+              <label class="field-label" for="book-volume">권 번호 <span class="optional-label">선택</span></label><input type="number" id="book-volume" min="1" max="9999" step="1" placeholder="예: 1">
+              <label class="field-label" for="book-tags">태그 <span class="optional-label">선택</span></label><input type="text" id="book-tags" placeholder="예: 액션, 판타지, 완결" maxlength="1000" aria-describedby="book-tags-help"><p class="field-help" id="book-tags-help">쉼표로 구분해 입력해 주세요.</p>
+              <label class="field-label" for="book-direction">읽는 방향</label><select id="book-direction"><option value="ltr">왼쪽 → 오른쪽</option><option value="rtl">오른쪽 → 왼쪽</option></select>
+              <p class="details-tip">같은 시리즈명으로 저장하면 권 순서로 묶입니다. 시리즈명을 비워 두면 단권으로 저장합니다. 페이지는 파일명 숫자 순서로 정렬됩니다.</p>
+              <div class="save-summary"><span>저장할 페이지</span><strong id="save-page-count">0쪽</strong></div>
+              <button class="button button-primary save-button" type="submit" id="save-book" disabled>컬렉션에 저장</button>
+              <p class="storage-note">저장한 만화는 이 브라우저에서 다시 볼 수 있습니다. 원본 파일은 그대로 유지됩니다.</p>
+            </aside>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+  </main>
+
+  <footer class="app-footer"><span>Paperflip · 나만의 만화 컬렉션</span><span>이미지와 읽던 위치는 이 브라우저에 저장됩니다.</span></footer>
+  <div class="drop-overlay" id="drop-overlay" hidden><div><strong>만화 파일을 놓아 주세요</strong><span>이미지 또는 ZIP·CBZ를 새 만화로 모읍니다.</span></div></div>
+
+  <dialog id="zoom-dialog" aria-labelledby="zoom-title"><header class="zoom-header"><h2 id="zoom-title">확대해서 읽기</h2><button class="button" type="button" id="close-zoom">닫기 · Esc</button></header><div class="zoom-pages" id="zoom-pages"></div></dialog>
+  <dialog id="rename-dialog" class="small-dialog" aria-labelledby="rename-title">
+    <form id="rename-form">
+      <h2 id="rename-title">만화 정보·태그 편집</h2>
+      <label class="field-label" for="rename-input">만화 제목</label><input type="text" id="rename-input" maxlength="100" required>
+      <label class="field-label" for="edit-series">시리즈명 <span class="optional-label">선택</span></label><input type="text" id="edit-series" list="series-names" maxlength="100">
+      <label class="field-label" for="edit-volume">권 번호 <span class="optional-label">선택</span></label><input type="number" id="edit-volume" min="1" max="9999" step="1">
+      <label class="field-label" for="edit-tags">태그 <span class="optional-label">선택</span></label><input type="text" id="edit-tags" placeholder="예: 액션, 판타지, 완결" maxlength="1000" aria-describedby="edit-tags-help"><p class="field-help" id="edit-tags-help">쉼표로 구분해 입력하고, 지우면 태그가 제거됩니다.</p>
+      <p class="details-tip">시리즈에서 빼려면 시리즈명과 권 번호를 비워 주세요.</p>
+      <p id="edit-error" class="form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><button class="button" type="button" id="cancel-rename">취소</button><button class="button button-primary" type="submit" id="save-rename">저장</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

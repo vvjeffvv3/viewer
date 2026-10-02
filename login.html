@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172821">
+  <title>Paperflip · 내 서재 입장</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/src/auth.css">
+  <script type="module" src="/src/auth.js"></script>
+</head>
+<body>
+  <header class="app-header"><a class="brand" href="/login.html"><span class="brand-mark" aria-hidden="true">P</span>Paperflip</a><span>나만의 만화책 서재</span></header>
+  <main class="entry-main">
+    <section class="entry-card" aria-labelledby="entry-title">
+      <div class="lock-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></div>
+      <span class="eyebrow">YOUR PRIVATE READING ROOM</span>
+      <h1 id="entry-title">잠긴 서재</h1>
+      <p class="entry-description" id="entry-description">입장 화면을 준비하고 있습니다.</p>
+      <form id="entry-form">
+        <fieldset id="entry-fields" disabled>
+          <label for="entry-password" id="password-label">비밀번호</label>
+          <input type="password" id="entry-password" name="password" autocomplete="current-password" placeholder="비밀번호를 입력해 주세요" maxlength="128" required>
+          <div id="confirm-field" hidden><label for="entry-confirmation">비밀번호 확인</label><input type="password" id="entry-confirmation" name="confirmation" autocomplete="new-password" placeholder="한 번 더 입력해 주세요" maxlength="128"></div>
+          <p class="password-tip" id="password-tip" hidden>8자 이상으로 정해 주세요. 한글과 기호도 사용할 수 있습니다.</p>
+          <button type="submit" class="entry-button" id="entry-submit">서재 들어가기</button>
+        </fieldset>
+      </form>
+      <p id="entry-message" class="entry-message" role="alert" hidden></p>
+      <button type="button" class="retry-button" id="entry-retry" hidden>다시 연결</button>
+      <div class="entry-bottom"><span class="tiny-book" aria-hidden="true">P</span><span>당신의 이야기들이 기다리고 있어요.</span></div>
+    </section>
+  </main>
+  <footer>Paperflip · 한 장씩 모아, 한 권의 이야기로</footer>
+</body>
+</html>
